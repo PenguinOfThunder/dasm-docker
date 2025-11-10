@@ -6,5 +6,4 @@ RUN mkdir -p /opt/dasm && wget -q -O- https://github.com/dasm-assembler/dasm/rel
 VOLUME /home/dasm
 WORKDIR /home/dasm
 ENTRYPOINT ["/opt/dasm/dasm"]
-CMD ["--help"]
 
