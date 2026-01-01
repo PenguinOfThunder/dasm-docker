@@ -73,7 +73,9 @@ jobs:
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
                   platforms: linux/aarch64,linux/amd64
-                  file: ./Dockerfile.src
+                  file: ./Dockerfile
+                  cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}:latest
+                  cache-to: type=inline
                   build-args: |
                       DASM_BRANCH=${{ env.DASM_BRANCH }}
 

@@ -1,21 +1,30 @@
 # Dasm Docker
 
-Docker container that lets you run dasm without installing it.
+## NOTICE
 
-You probably don't need this. And it's less convenient than just installing the real thing.
+> This is not affiliated with the [dasm](https://dasm-assembler.github.io/) project in any way, nor is this a superior or officially supported way to use it.
+>
+> Go to [the dasm page](https://dasm-assembler.github.io/) and download the binaries if you just want to run dasm.
 
-**This is not affiliated with the [dasm](https://dasm-assembler.github.io/) project in any way. It was created for my own use.**
+## What is it
 
+This lets you create a Docker container you can use to run dasm without installing it.
+
+This docker image is built in these steps:
+
+1. Clone [dasm](https://github.com/dasm-assembler) from github
+2. Compile dasm with gcc
+3. Copy the output to the base image. The entrypoint for the image is the dasm executable.
+
+In the end, you can run the container in place of a locally installed executable (see below).
 
 ## Build Docker Image
 
 ```sh
-docker build . -t dasm-docker --build-arg DASM_VERSION=2.20.14.1
+docker build . -t dasm-docker --build-arg DASM_BRANCH=master # master is the default
 ```
 
-Substitute the version for whichever version you're building for.
-
-The build will just download the binary release from the [dasm github](https://github.com/dasm-assembler/dasm/releases).
+For convenience, this repository also has a pre-built version of the image [here](https://github.com/PenguinOfThunder/dasm-docker/pkgs/container/dasm-docker).
 
 ## Usage
 
@@ -27,27 +36,9 @@ docker run --rm -it -v .:/home/dasm dasm-docker game1.asm -ogame1_ntsc2.bin -lga
 
 Note the `-v` switch to mount the current directory to the `/home/dasm` volume.
 
-## GitHub Image (GHCR)
 
-This repo has a GitHub workflow to build and publish an image ready-to-use.
+## But why?
 
-- **Trigger:** push to `main`, push a `v*` tag (e.g. `v1.2.3`), or run the workflow manually from the Actions UI (`workflow_dispatch`).
-- **Publish:** the workflow builds multi-arch images (`amd64` + `arm64`) and publishes them to GitHub Container Registry (`ghcr.io`).
-- **Pull (public image):**
+My Linux distro (Fedora) didn't have a package for dasm and it gave me an idea to try and make it "portable" with Docker.
 
-```bash
-docker pull ghcr.io/OWNER/REPO:latest
-docker pull ghcr.io/OWNER/REPO:v1.2.3
-```
-
-- **Pull (private image):** authenticate with a Personal Access Token that has `read:packages`:
-
-```bash
-docker login ghcr.io -u YOUR_GITHUB_USERNAME -p YOUR_PAT
-docker pull ghcr.io/OWNER/REPO:latest
-```
-
-Replace `OWNER/REPO` with your GitHub owner and repository name (for example `myuser/myrepo`).
-
-The workflow also pushes the commit SHA tag; you will see images tagged as `ghcr.io/OWNER/REPO:latest`, `ghcr.io/OWNER/REPO:<sha>`, and `ghcr.io/OWNER/REPO:<tag>` for tag-created releases.
-
+Would Flatpak or AppImage be better? Yes, probably. Why don't you get on that.

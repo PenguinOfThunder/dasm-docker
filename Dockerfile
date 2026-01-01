@@ -1,9 +1,19 @@
-FROM debian:stable-slim AS base
-ARG DASM_VERSION
-ENV DASM_VERSION=${DASM_VERSION}
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/* 
-RUN mkdir -p /opt/dasm && wget -q -O- https://github.com/dasm-assembler/dasm/releases/download/$DASM_VERSION/dasm-$DASM_VERSION-linux-x64.tar.gz | tar xvzf - -C /opt/dasm
-VOLUME /home/dasm
-WORKDIR /home/dasm
-ENTRYPOINT ["/opt/dasm/dasm"]
+# Dockerfile for cloning and building dasm from source
+FROM debian:stable AS build
+ARG DASM_BRANCH=master
+ENV DASM_BRANCH=${DASM_BRANCH}
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  git build-essential gcc make \
+  && apt-get clean && rm -rf /var/lib/apt/lists/* \
+  && adduser dasm
+USER dasm
+WORKDIR /src
+RUN git clone -b $DASM_BRANCH -- https://github.com/dasm-assembler/dasm.git /src/dasm \
+  && cd /src/dasm && make && ls -l
+
+FROM debian:stable-slim AS run
+WORKDIR /dasm
+COPY --from=build /src/dasm/bin /dasm/
+COPY --from=build /src/dasm/machines /dasm/machines/
+ENTRYPOINT ["/dasm/dasm"]
 
